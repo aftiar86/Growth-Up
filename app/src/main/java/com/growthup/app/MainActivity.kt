@@ -8,7 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.core.view.WindowCompat
 import com.growthup.app.data.local.GrowthUpDatabase
 import com.growthup.app.data.repository.TaskRepositoryImpl
 import com.growthup.app.notification.NotificationHelper
@@ -23,14 +23,18 @@ class MainActivity : ComponentActivity() {
     private val requestNotificationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { _ ->
-        // Notification permission handled
         NotificationHelper.scheduleDailyReminders(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize notification channel and schedule
+        // Make status bar icons and clock dark and clear on light background
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        val insetsController = WindowCompat.getInsetsController(window, window.decorView)
+        insetsController.isAppearanceLightStatusBars = true
+        insetsController.isAppearanceLightNavigationBars = true
+
         NotificationHelper.createNotificationChannel(this)
         requestNotificationPermission()
         NotificationHelper.scheduleDailyReminders(this)

@@ -115,4 +115,21 @@ class TodayViewModelTest {
         assertEquals(1, state.completedCount)
         assertEquals(50, state.progressPercent)
     }
+
+    @Test
+    fun testAddTaskForTodayDirectly() = runTest(testDispatcher) {
+        viewModel = TodayViewModel(repository)
+        advanceUntilIdle()
+
+        assertEquals(0, viewModel.uiState.value.tasks.size)
+
+        viewModel.onInputTitleChanged("Membaca buku 30 menit")
+        viewModel.addTaskForToday()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(1, state.tasks.size)
+        assertEquals("Membaca buku 30 menit", state.tasks[0].title)
+        assertEquals("", state.inputTaskTitle)
+    }
 }

@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.growthup.app.data.model.TaskEntity
 import com.growthup.app.ui.theme.GrowthUpColors
 import com.growthup.app.ui.theme.Typography
@@ -47,6 +48,8 @@ fun TaskCard(
         label = "checkboxBg"
     )
 
+    val emoji = TaskEmojiHelper.getEmojiForTask(task.title)
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -61,7 +64,7 @@ fun TaskCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = 14.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Checkbox with minimum 48dp touch target
@@ -73,7 +76,7 @@ fun TaskCard(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(26.dp)
+                        .size(24.dp)
                         .clip(CircleShape)
                         .background(checkBgColor)
                         .then(
@@ -90,21 +93,27 @@ fun TaskCard(
                             tint = GrowthUpColors.SurfaceWhite,
                             modifier = Modifier.size(16.dp)
                         )
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .size(26.dp)
-                                .clip(CircleShape)
-                                .background(GrowthUpColors.SurfaceWhite)
-                                .padding(1.dp)
-                        ) {
-                            // Empty border circle
-                        }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(4.dp))
+
+            // Cute Contextual Emoji Badge
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(GrowthUpColors.CardBorder.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = emoji,
+                    fontSize = 18.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.width(10.dp))
 
             Text(
                 text = task.title,

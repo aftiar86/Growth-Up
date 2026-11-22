@@ -3,16 +3,27 @@ package com.growthup.app.ui.today
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -20,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,7 +65,7 @@ fun TodayScreen(
             .background(GrowthUpColors.BackgroundCream)
             .padding(horizontal = 20.dp)
     ) {
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Header
         Text(
@@ -69,7 +81,7 @@ fun TodayScreen(
             style = Typography.bodyMedium.copy(color = GrowthUpColors.TextMuted)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(14.dp))
 
         // Progress Section
         DailyProgressBar(
@@ -78,10 +90,58 @@ fun TodayScreen(
             percent = state.progressPercent
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // Quick Input Row for Today
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = state.inputTaskTitle,
+                onValueChange = { viewModel.onInputTitleChanged(it) },
+                placeholder = {
+                    Text(
+                        "Tambah kegiatan hari ini...",
+                        style = Typography.bodyMedium.copy(color = GrowthUpColors.TextMuted.copy(alpha = 0.6f))
+                    )
+                },
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(16.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = GrowthUpColors.SurfaceWhite,
+                    unfocusedContainerColor = GrowthUpColors.SurfaceWhite,
+                    focusedBorderColor = GrowthUpColors.WarmRose,
+                    unfocusedBorderColor = GrowthUpColors.CardBorder,
+                    cursorColor = GrowthUpColors.WarmRose
+                ),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = { viewModel.addTaskForToday() }
+                )
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            FloatingActionButton(
+                onClick = { viewModel.addTaskForToday() },
+                containerColor = GrowthUpColors.WarmRose,
+                contentColor = GrowthUpColors.SurfaceWhite,
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.size(52.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = "Tambah Kegiatan"
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
 
         Text(
-            text = "Rencana Hari Ini",
+            text = "Rencana Hari Ini (${state.tasks.size})",
             style = Typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
             color = GrowthUpColors.TextCharcoal
         )
@@ -113,7 +173,7 @@ fun TodayScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Rencana yang disiapkan kemarin malam akan tampil di sini. Yuk siapkan kegiatan esok hari di tab Rencana Besok!",
+                            text = "Ketik di atas untuk langsung menambah kegiatan hari ini, atau rencanakan esok di tab Rencana Besok ✨",
                             style = Typography.bodyMedium.copy(color = GrowthUpColors.TextMuted),
                             textAlign = TextAlign.Center
                         )

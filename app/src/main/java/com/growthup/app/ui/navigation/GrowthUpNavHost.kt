@@ -2,7 +2,9 @@ package com.growthup.app.ui.navigation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material.icons.rounded.EditCalendar
@@ -45,6 +47,10 @@ fun GrowthUpApp(
     var currentScreen by remember { mutableStateOf(Screen.TODAY) }
 
     Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding(),
         bottomBar = {
             NavigationBar(
                 containerColor = GrowthUpColors.SurfaceWhite,

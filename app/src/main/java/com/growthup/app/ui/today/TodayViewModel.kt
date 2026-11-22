@@ -14,6 +14,7 @@ import java.time.LocalDate
 data class TodayUiState(
     val date: String = LocalDate.now().toString(),
     val tasks: List<TaskEntity> = emptyList(),
+    val inputTaskTitle: String = "",
     val completedCount: Int = 0,
     val totalCount: Int = 0,
     val progressPercent: Int = 0,
@@ -47,6 +48,19 @@ class TodayViewModel(
                     isLoading = false
                 )
             }
+        }
+    }
+
+    fun onInputTitleChanged(newTitle: String) {
+        _uiState.value = _uiState.value.copy(inputTaskTitle = newTitle)
+    }
+
+    fun addTaskForToday(title: String = _uiState.value.inputTaskTitle) {
+        if (title.isBlank()) return
+        val today = LocalDate.now().toString()
+        viewModelScope.launch {
+            repository.addTask(title.trim(), today)
+            _uiState.value = _uiState.value.copy(inputTaskTitle = "")
         }
     }
 
