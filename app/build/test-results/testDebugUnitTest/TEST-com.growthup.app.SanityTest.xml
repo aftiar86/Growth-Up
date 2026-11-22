@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.growthup.app.SanityTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-22T04:47:20" hostname="DESKTOP-HN5P72L" time="0.003">
+  <properties/>
+  <testcase name="testEnvironmentSanity" classname="com.growthup.app.SanityTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
