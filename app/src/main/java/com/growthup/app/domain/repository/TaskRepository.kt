@@ -1,6 +1,7 @@
 package com.growthup.app.domain.repository
 
 import com.growthup.app.data.model.TaskEntity
+import com.growthup.app.data.model.UnlockedRewardEntity
 import kotlinx.coroutines.flow.Flow
 
 data class HistorySummary(
@@ -18,4 +19,8 @@ interface TaskRepository {
     suspend fun rolloverToTomorrow(task: TaskEntity): Long
     suspend fun archiveTask(id: Long)
     suspend fun deleteTask(id: Long)
+
+    fun getAllUnlockedRewards(): Flow<List<UnlockedRewardEntity>>
+    suspend fun getRewardForDate(date: String): UnlockedRewardEntity?
+    suspend fun unlockRewardForDate(date: String, dollId: String): Boolean
 }

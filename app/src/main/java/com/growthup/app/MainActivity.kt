@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
         NotificationHelper.scheduleDailyReminders(this)
 
         val database = GrowthUpDatabase.getDatabase(this)
-        val repository = TaskRepositoryImpl(database.taskDao())
+        val repository = TaskRepositoryImpl(database.taskDao(), database.rewardDao())
 
         val todayViewModel = TodayViewModel(repository)
         val tomorrowViewModel = TomorrowViewModel(repository)

@@ -1,13 +1,17 @@
 package com.growthup.app.data.repository
 
+import com.growthup.app.data.local.RewardDao
 import com.growthup.app.data.local.TaskDao
 import com.growthup.app.data.model.TaskEntity
+import com.growthup.app.data.model.UnlockedRewardEntity
 import com.growthup.app.domain.repository.TaskRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDate
 
 class TaskRepositoryImpl(
-    private val taskDao: TaskDao
+    private val taskDao: TaskDao,
+    private val rewardDao: RewardDao? = null
 ) : TaskRepository {
 
     override fun getTasksForDate(date: String): Flow<List<TaskEntity>> {
@@ -59,5 +63,20 @@ class TaskRepositoryImpl(
 
     override suspend fun deleteTask(id: Long) {
         taskDao.deleteById(id)
+    }
+
+    override fun getAllUnlockedRewards(): Flow<List<UnlockedRewardEntity>> {
+        return rewardDao?.getAllUnlockedRewards() ?: flowOf(emptyList())
+    }
+
+    override suspend fun getRewardForDate(date: String): UnlockedRewardEntity? {
+        return rewardDao?.getRewardForDate(date)
+    }
+
+    override suspend fun unlockRewardForDate(date: String, dollId: String): Boolean {
+        val existing = rewardDao?.getRewardForDate(date)
+        if (existing != null) return false
+        val result = rewardDao?.insertReward(UnlockedRewardEntity(date = date, dollId = dollId))
+        return (result != null && result > 0L)
     }
 }
