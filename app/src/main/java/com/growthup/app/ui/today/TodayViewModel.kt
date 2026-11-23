@@ -4,12 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.growthup.app.data.model.TaskEntity
 import com.growthup.app.domain.model.DollCatalog
+import com.growthup.app.domain.model.DollEvolution
+import com.growthup.app.domain.model.DollEvolutionCalculator
 import com.growthup.app.domain.model.DollReward
 import com.growthup.app.domain.repository.TaskRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -22,6 +25,7 @@ data class TodayUiState(
     val progressPercent: Int = 0,
     val isLoading: Boolean = false,
     val celebrationReward: DollReward? = null,
+    val celebrationEvolution: DollEvolution? = null,
     val showCelebrationDialog: Boolean = false
 )
 
@@ -48,6 +52,7 @@ class TodayViewModel(
 
                 val isCompleted100 = total > 0 && completed == total
                 var rewardToCelebrate: DollReward? = _uiState.value.celebrationReward
+                var evolutionToCelebrate: DollEvolution? = _uiState.value.celebrationEvolution
                 var showCelebration = _uiState.value.showCelebrationDialog
 
                 if (isCompleted100 && !hasShownCelebrationToday) {
@@ -55,7 +60,14 @@ class TodayViewModel(
                     if (existing == null) {
                         val doll = DollCatalog.getRewardForDate(today)
                         repository.unlockRewardForDate(today, doll.id)
+                        val allRewards = try {
+                            repository.getAllUnlockedRewards().first()
+                        } catch (e: Exception) {
+                            emptyList()
+                        }
+                        val dollUnlocks = allRewards.count { it.dollId == doll.id }.coerceAtLeast(1)
                         rewardToCelebrate = doll
+                        evolutionToCelebrate = DollEvolutionCalculator.calculateEvolution(doll.id, dollUnlocks)
                         showCelebration = true
                         hasShownCelebrationToday = true
                     } else {
@@ -71,6 +83,7 @@ class TodayViewModel(
                     completedCount = completed,
                     progressPercent = percent,
                     celebrationReward = rewardToCelebrate,
+                    celebrationEvolution = evolutionToCelebrate,
                     showCelebrationDialog = showCelebration,
                     isLoading = false
                 )

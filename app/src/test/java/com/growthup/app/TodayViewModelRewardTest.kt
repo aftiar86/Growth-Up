@@ -71,6 +71,8 @@ class TodayViewModelRewardTest {
         assertEquals(100, state.progressPercent)
         assertTrue(state.showCelebrationDialog)
         assertNotNull(state.celebrationReward)
+        assertNotNull(state.celebrationEvolution)
+        assertEquals(1, state.celebrationEvolution?.starLevel)
 
         // Dismiss dialog
         viewModel.dismissCelebrationDialog()

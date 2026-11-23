@@ -203,6 +203,7 @@ fun TodayScreen(
         if (state.showCelebrationDialog && state.celebrationReward != null) {
             CelebrationDialog(
                 reward = state.celebrationReward!!,
+                evolution = state.celebrationEvolution,
                 onDismiss = viewModel::dismissCelebrationDialog
             )
         }
