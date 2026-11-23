@@ -1,6 +1,7 @@
 package com.growthup.app.ui.history
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.growthup.app.domain.model.DollCatalog
+import com.growthup.app.domain.model.DollEvolutionCalculator
 import com.growthup.app.ui.theme.GrowthUpColors
 import com.growthup.app.ui.theme.Typography
 import java.time.LocalDate
@@ -130,8 +135,10 @@ fun HistoryScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Doll Collection Shelf
+        // Doll Collection Shelf with Series Filter & Star Evolution
+        var selectedSeriesId by remember { mutableStateOf("all") }
         val unlockedDollIds = state.unlockedRewards.map { it.dollId }.toSet()
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -160,14 +167,69 @@ fun HistoryScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Series Filter Tabs
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            item {
+                val isSelected = selectedSeriesId == "all"
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(if (isSelected) GrowthUpColors.WarmRose else GrowthUpColors.SurfaceWhite)
+                        .clickable { selectedSeriesId = "all" }
+                        .padding(horizontal = 10.dp, vertical = 5.dp)
+                ) {
+                    Text(
+                        text = "🌟 Semua",
+                        style = Typography.labelSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = if (isSelected) GrowthUpColors.SurfaceWhite else GrowthUpColors.TextCharcoal
+                        )
+                    )
+                }
+            }
+
+            items(DollCatalog.SERIES_LIST, key = { it.id }) { series ->
+                val isSelected = selectedSeriesId == series.id
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(if (isSelected) GrowthUpColors.WarmRose else GrowthUpColors.SurfaceWhite)
+                        .clickable { selectedSeriesId = series.id }
+                        .padding(horizontal = 10.dp, vertical = 5.dp)
+                ) {
+                    Text(
+                        text = "${series.icon} ${series.title}",
+                        style = Typography.labelSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = if (isSelected) GrowthUpColors.SurfaceWhite else GrowthUpColors.TextCharcoal
+                        )
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        val filteredDolls = if (selectedSeriesId == "all") {
+            DollCatalog.ALL_DOLLS
+        } else {
+            DollCatalog.ALL_DOLLS.filter { it.seriesId == selectedSeriesId }
+        }
+
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(DollCatalog.ALL_DOLLS, key = { it.id }) { doll ->
-                val isUnlocked = unlockedDollIds.contains(doll.id)
+            items(filteredDolls, key = { it.id }) { doll ->
+                val totalUnlocks = state.unlockedRewards.count { it.dollId == doll.id }
+                val evolution = DollEvolutionCalculator.calculateEvolution(doll.id, totalUnlocks)
+                val isUnlocked = totalUnlocks > 0
+
                 Card(
-                    modifier = Modifier.width(105.dp),
+                    modifier = Modifier.width(112.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = if (isUnlocked) GrowthUpColors.SurfaceWhite else GrowthUpColors.SurfaceWhite.copy(alpha = 0.6f)
@@ -182,7 +244,7 @@ fun HistoryScreen(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(50.dp)
+                                .size(54.dp)
                                 .clip(CircleShape)
                                 .background(
                                     if (isUnlocked) Color(doll.accentColorHex).copy(alpha = 0.2f)
@@ -192,10 +254,21 @@ fun HistoryScreen(
                         ) {
                             Text(
                                 text = if (isUnlocked) doll.emoji else "🔒",
-                                fontSize = 26.sp
+                                fontSize = 28.sp
                             )
+                            if (evolution.accessoryEmoji != null) {
+                                Text(
+                                    text = evolution.accessoryEmoji,
+                                    fontSize = 16.sp,
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .padding(2.dp)
+                                )
+                            }
                         }
-                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
                         Text(
                             text = doll.name.split(" ").firstOrNull() ?: doll.name,
                             style = Typography.labelMedium.copy(
@@ -205,15 +278,36 @@ fun HistoryScreen(
                             textAlign = TextAlign.Center,
                             maxLines = 1
                         )
+
                         Spacer(modifier = Modifier.height(2.dp))
+
+                        // Star Level
                         Text(
-                            text = if (isUnlocked) "✨ Terbuka" else "Terkunci",
+                            text = if (isUnlocked) {
+                                when (evolution.starLevel) {
+                                    1 -> "⭐"
+                                    2 -> "⭐⭐"
+                                    else -> "⭐⭐⭐"
+                                }
+                            } else "Terkunci",
                             style = Typography.labelSmall.copy(
                                 fontSize = 10.sp,
-                                color = if (isUnlocked) GrowthUpColors.CompletedGreen else GrowthUpColors.TextMuted
+                                fontWeight = FontWeight.Bold,
+                                color = if (isUnlocked) GrowthUpColors.WarmRose else GrowthUpColors.TextMuted
                             ),
                             textAlign = TextAlign.Center
                         )
+
+                        if (isUnlocked) {
+                            Text(
+                                text = "x$totalUnlocks didapat",
+                                style = Typography.labelSmall.copy(
+                                    fontSize = 9.sp,
+                                    color = GrowthUpColors.TextMuted
+                                ),
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
             }
