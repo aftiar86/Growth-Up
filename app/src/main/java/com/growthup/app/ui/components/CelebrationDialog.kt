@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -166,7 +167,7 @@ fun CelebrationDialog(
                         Text(
                             text = reward.emoji,
                             fontSize = 62.sp,
-                            modifier = Modifier.padding(bottom = bounceOffset.dp)
+                            modifier = Modifier.offset(y = bounceOffset.dp)
                         )
                     }
 
