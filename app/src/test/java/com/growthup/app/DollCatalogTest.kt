@@ -9,11 +9,12 @@ import org.junit.Test
 class DollCatalogTest {
 
     @Test
-    fun testCatalogHasSixDistinctDolls() {
+    fun testCatalogHasThirtyDistinctDolls() {
         val dolls = DollCatalog.ALL_DOLLS
-        assertEquals(6, dolls.size)
+        assertEquals(30, dolls.size)
         val ids = dolls.map { it.id }.toSet()
-        assertEquals(6, ids.size)
+        assertEquals(30, ids.size)
+        assertEquals(5, DollCatalog.SERIES_LIST.size)
     }
 
     @Test

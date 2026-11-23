@@ -6,5 +6,6 @@ data class DollReward(
     val subtitle: String,
     val emoji: String,
     val accentColorHex: Long,
-    val praiseMessage: String
+    val praiseMessage: String,
+    val seriesId: String = "seri_hutan"
 )
