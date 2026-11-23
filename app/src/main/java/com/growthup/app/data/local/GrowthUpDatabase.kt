@@ -5,10 +5,16 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.growthup.app.data.model.TaskEntity
+import com.growthup.app.data.model.UnlockedRewardEntity
 
-@Database(entities = [TaskEntity::class], version = 1, exportSchema = false)
+@Database(
+    entities = [TaskEntity::class, UnlockedRewardEntity::class],
+    version = 2,
+    exportSchema = false
+)
 abstract class GrowthUpDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
+    abstract fun rewardDao(): RewardDao
 
     companion object {
         @Volatile
