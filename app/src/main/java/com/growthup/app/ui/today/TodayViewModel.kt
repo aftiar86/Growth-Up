@@ -3,6 +3,8 @@ package com.growthup.app.ui.today
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.growthup.app.data.model.TaskEntity
+import com.growthup.app.domain.model.DollCatalog
+import com.growthup.app.domain.model.DollReward
 import com.growthup.app.domain.repository.TaskRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +20,9 @@ data class TodayUiState(
     val completedCount: Int = 0,
     val totalCount: Int = 0,
     val progressPercent: Int = 0,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val celebrationReward: DollReward? = null,
+    val showCelebrationDialog: Boolean = false
 )
 
 class TodayViewModel(
@@ -27,6 +31,8 @@ class TodayViewModel(
 
     private val _uiState = MutableStateFlow(TodayUiState())
     val uiState: StateFlow<TodayUiState> = _uiState.asStateFlow()
+
+    private var hasShownCelebrationToday: Boolean = false
 
     init {
         loadTasks()
@@ -39,16 +45,41 @@ class TodayViewModel(
                 val total = taskList.size
                 val completed = taskList.count { it.isCompleted }
                 val percent = if (total > 0) (completed * 100) / total else 0
+
+                val isCompleted100 = total > 0 && completed == total
+                var rewardToCelebrate: DollReward? = _uiState.value.celebrationReward
+                var showCelebration = _uiState.value.showCelebrationDialog
+
+                if (isCompleted100 && !hasShownCelebrationToday) {
+                    val existing = repository.getRewardForDate(today)
+                    if (existing == null) {
+                        val doll = DollCatalog.getRewardForDate(today)
+                        repository.unlockRewardForDate(today, doll.id)
+                        rewardToCelebrate = doll
+                        showCelebration = true
+                        hasShownCelebrationToday = true
+                    } else {
+                        // Already unlocked previously today
+                        hasShownCelebrationToday = true
+                    }
+                }
+
                 _uiState.value = _uiState.value.copy(
                     date = today,
                     tasks = taskList,
                     totalCount = total,
                     completedCount = completed,
                     progressPercent = percent,
+                    celebrationReward = rewardToCelebrate,
+                    showCelebrationDialog = showCelebration,
                     isLoading = false
                 )
             }
         }
+    }
+
+    fun dismissCelebrationDialog() {
+        _uiState.value = _uiState.value.copy(showCelebrationDialog = false)
     }
 
     fun onInputTitleChanged(newTitle: String) {

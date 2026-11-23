@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.growthup.app.ui.components.CelebrationDialog
 import com.growthup.app.ui.components.DailyProgressBar
 import com.growthup.app.ui.components.TaskCard
 import com.growthup.app.ui.theme.GrowthUpColors
@@ -197,6 +198,13 @@ fun TodayScreen(
                     Spacer(modifier = Modifier.height(20.dp))
                 }
             }
+        }
+
+        if (state.showCelebrationDialog && state.celebrationReward != null) {
+            CelebrationDialog(
+                reward = state.celebrationReward!!,
+                onDismiss = viewModel::dismissCelebrationDialog
+            )
         }
     }
 }
