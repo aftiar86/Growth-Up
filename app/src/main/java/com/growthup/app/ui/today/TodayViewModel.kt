@@ -57,23 +57,24 @@ class TodayViewModel(
 
                 if (isCompleted100 && !hasShownCelebrationToday) {
                     val existing = repository.getRewardForDate(today)
-                    if (existing == null) {
-                        val doll = DollCatalog.getRewardForDate(today)
-                        repository.unlockRewardForDate(today, doll.id)
-                        val allRewards = try {
-                            repository.getAllUnlockedRewards().first()
-                        } catch (e: Exception) {
-                            emptyList()
-                        }
-                        val dollUnlocks = allRewards.count { it.dollId == doll.id }.coerceAtLeast(1)
-                        rewardToCelebrate = doll
-                        evolutionToCelebrate = DollEvolutionCalculator.calculateEvolution(doll.id, dollUnlocks)
-                        showCelebration = true
-                        hasShownCelebrationToday = true
+                    val doll = if (existing == null) {
+                        val d = DollCatalog.getRewardForDate(today)
+                        repository.unlockRewardForDate(today, d.id)
+                        d
                     } else {
-                        // Already unlocked previously today
-                        hasShownCelebrationToday = true
+                        DollCatalog.getDollById(existing.dollId) ?: DollCatalog.getRewardForDate(today)
                     }
+
+                    val allRewards = try {
+                        repository.getAllUnlockedRewards().first()
+                    } catch (e: Exception) {
+                        emptyList()
+                    }
+                    val dollUnlocks = allRewards.count { it.dollId == doll.id }.coerceAtLeast(1)
+                    rewardToCelebrate = doll
+                    evolutionToCelebrate = DollEvolutionCalculator.calculateEvolution(doll.id, dollUnlocks)
+                    showCelebration = true
+                    hasShownCelebrationToday = true
                 }
 
                 _uiState.value = _uiState.value.copy(
