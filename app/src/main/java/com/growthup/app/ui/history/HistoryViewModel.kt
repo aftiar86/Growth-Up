@@ -3,6 +3,7 @@ package com.growthup.app.ui.history
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.growthup.app.data.model.TaskEntity
+import com.growthup.app.data.model.UnlockedRewardEntity
 import com.growthup.app.domain.repository.TaskRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,6 +38,7 @@ data class HistoryUiState(
     val stats: HistoryStats = HistoryStats(),
     val allTasks: List<TaskEntity> = emptyList(),
     val tasksByDate: Map<String, List<TaskEntity>> = emptyMap(),
+    val unlockedRewards: List<UnlockedRewardEntity> = emptyList(),
     val isLoading: Boolean = false
 )
 
@@ -62,6 +64,12 @@ class HistoryViewModel(
                     tasksByDate = grouped,
                     isLoading = false
                 )
+            }
+        }
+
+        viewModelScope.launch {
+            repository.getAllUnlockedRewards().collectLatest { rewards ->
+                _uiState.value = _uiState.value.copy(unlockedRewards = rewards)
             }
         }
     }
