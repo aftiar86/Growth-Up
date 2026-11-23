@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.growthup.app.domain.model.DollEvolution
 import com.growthup.app.domain.model.DollReward
 import com.growthup.app.ui.theme.GrowthUpColors
 import com.growthup.app.ui.theme.Typography
@@ -47,6 +48,7 @@ import kotlin.math.sin
 @Composable
 fun CelebrationDialog(
     reward: DollReward,
+    evolution: DollEvolution? = null,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -169,6 +171,16 @@ fun CelebrationDialog(
                             fontSize = 62.sp,
                             modifier = Modifier.offset(y = bounceOffset.dp)
                         )
+
+                        if (evolution?.accessoryEmoji != null) {
+                            Text(
+                                text = evolution.accessoryEmoji,
+                                fontSize = 30.sp,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(end = 4.dp, top = 2.dp)
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(14.dp))
@@ -192,6 +204,24 @@ fun CelebrationDialog(
                         ),
                         textAlign = TextAlign.Center
                     )
+
+                    if (evolution != null && evolution.starLevel > 0) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(GrowthUpColors.SoftBlush)
+                                .padding(horizontal = 10.dp, vertical = 3.dp)
+                        ) {
+                            Text(
+                                text = evolution.titleBadge,
+                                style = Typography.labelSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = GrowthUpColors.WarmRose
+                                )
+                            )
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
